@@ -191,6 +191,40 @@ Jobs/classes and large branching skill trees are excluded from initial scope. De
 
 ---
 
+## DEC-017 — Continuous space in Q16.16 fixed point; no floats in the combat domain
+**Status:** LOCKED · 2026-08-29 *(Ezra chose continuous space knowing the cost)* · **Extends:** DEC-004, DEC-015
+
+**Decision.** Combat space is continuous, not gridded. All positions, velocities, distances, radii, and durations in `systems/combat/` are Q16.16 fixed-point integers (scale 2^16 = 65536). **No `float` may appear in the combat domain layer.** Floats are permitted only at the two boundaries: content authoring (`Fixed.from_float`) and presentation (`Fixed.to_float`).
+
+**Reason.** Continuous space means fractional positions, and floats cannot carry that job under a replay guarantee. IEEE-754 results vary with compiler flags, SIMD paths, x87 extended precision, and fused-multiply-add availability, so the same battle can resolve differently on two machines — which breaks DEC-012's replay and any future networked play. Integers do not have this problem.
+
+**Honest framing.** Fixed-point is *not more accurate* than float. 0.1 is not exactly representable here either (0.1 × 65536 = 6553.6, stored as 6554). What it is, is *exactly reproducible* — identical inputs give bit-identical outputs on every platform, every run. Reproducibility is the property the determinism contract requires; accuracy is not.
+
+**Scale rationale.** 2^16 is a power of two, so halves, quarters and eighths are exact and multiplication/division are shifts rather than rounding operations. Overflow bound for `mul()` is ±3.04e9 raw, roughly ±46,000 world units — about three orders of magnitude above battlefield scale.
+
+**Verified by execution, 2026-08-29.**
+- 18 tests covering round-trip exactness, unity, sqrt of perfect squares (exact), sqrt bounds, the 3-4-5 triangle (exactly 5), distance symmetry, boundary behaviour of `within()`, `move_toward` landing exactly on target, and 240 ticks of accumulated movement reproducing bit-identically across runs.
+- Float non-associativity demonstrated directly: `(0.1+0.2)+0.3 = 0.60000000000000008882` versus `0.1+(0.2+0.3) = 0.59999999999999997780` — not equal. The same values in fixed point give `39322` both ways. Since damage from N sources in one tick is an accumulation, float would make the total depend on iteration order; integers cannot.
+- A second demonstration attempted to show float order-dependence and instead showed float silently discarding three whole units of magnitude entirely (true answer 3.0, float answer 0.0 in both orders). Recorded as-is rather than tuned until it produced the expected shape.
+- **Not demonstrated:** cross-platform float divergence from SIMD/x87/FMA differences. Well-established, but untestable from a single machine and single build. The decision rests on the associativity result plus that established behaviour, not on a claim this container can verify.
+
+**Alternatives.** (A) Grid with integer cells — cheapest, determinism free, but diverges from the Arco feel Ezra chose. (B) Floats with tolerance epsilons — rejected; epsilons hide divergence rather than preventing it, and a replay that is "close" is not a replay. (C) Continuous Q16.16 fixed point. **Selected: C.**
+
+---
+
+## DEC-018 — Ability resource regenerates positionally
+**Status:** LOCKED · 2026-08-29 *(Ezra's design decision)*
+
+**Decision.** The ability resource regenerates as a character moves or waits, following Arco's shape. Where a character ends the execution window determines what they can afford to do from there.
+
+**Reason.** Creates a genuine positional economy and makes waiting a real tactical option rather than a wasted cycle — which is what gives positioning teeth under simultaneous resolution. Reinforces Constitution §4's hierarchy: strategy and position precede planned action.
+
+**Consequences for M1 schemas.** Every ability definition needs a resource cost. Every character definition needs a resource pool, a base regeneration rate, and a movement-to-regeneration relationship. The regeneration curve is a balance knob and therefore a named constant in the domain layer, never a magic number (CLAUDE.md conventions).
+
+**Open.** The resource's name is Ezra's call — see `design-constitution.md` §9, core nouns. Referred to as `ability_resource` in code until named.
+
+---
+
 ## Proposed amendments
 
 ### AMD-001 — DEC-007's slice definition assumes menu-driven combat

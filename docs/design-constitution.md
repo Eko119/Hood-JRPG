@@ -61,6 +61,12 @@ NEW COMBAT STATE
 PLANNING
 ```
 
+### Space — continuous
+Combat space is **continuous, not gridded** (DEC-017). Free positioning, natural projectile arcs, shots that visibly graze past. This is the closer reading of Arco and was chosen knowing it costs fixed-point math throughout the domain layer.
+
+### Ability resource — positional regeneration
+The ability resource **regenerates as a character moves or waits** (DEC-018), following Arco's shape. Where you end the window determines what you can afford there. Waiting is a tactical choice, not a wasted cycle. *Name pending — see §9.*
+
 ### Architecture rule
 **The combat domain determines what happens. The presentation layer displays what happened.** Animation, VFX, audio, camera movement, and timing presentation must not become the source of combat truth. The resolver is deterministic from its defined inputs.
 

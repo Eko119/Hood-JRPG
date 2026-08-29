@@ -68,10 +68,14 @@ step "5. Test suite (GUT, headless)"
 TESTS="$("$GODOT" --headless --path . -s addons/gut/gut_cmdln.gd \
          -gdir=res://tests -ginclude_subdirs -gexit 2>&1)"
 echo "$TESTS" | grep -E 'Scripts|^Tests|Passing Tests|Asserts' | sed 's/^/     /'
-RAN="$(echo "$TESTS" | grep -oP '(?<=^Tests\s{17})\d+' | head -1)"
-if echo "$TESTS" | grep -q 'All tests passed!' && [[ "${RAN:-0}" -gt 0 ]]; then
-  pass "all tests passed ($RAN tests)"
-else fail "test failures or no tests ran"; fi
+# Robust against column-width changes as the suite grows. The original
+# fixed-width lookbehind silently returned empty once counts hit two digits,
+# reporting failure on a fully passing suite.
+RAN="$(echo "$TESTS" | grep -oP '^Tests\s+\K[0-9]+' | head -1)"
+PASSED="$(echo "$TESTS" | grep -oP '^Passing Tests\s+\K[0-9]+' | head -1)"
+if [[ "${RAN:-0}" -gt 0 && "${RAN:-0}" == "${PASSED:-x}" ]]; then
+  pass "all tests passed ($RAN/$RAN)"
+else fail "tests: ${PASSED:-?}/${RAN:-?} passed"; fi
 
 step "RESULT"
 if [[ $FAILURES -eq 0 ]]; then
