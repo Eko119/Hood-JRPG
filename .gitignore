@@ -1,0 +1,15 @@
+# Godot
+.godot/
+/android/
+export_presets.cfg
+*.translation
+
+# Generated verification artifacts — outputs, never documentation (CLAUDE.md)
+reports/
+
+# Engine binaries — pinned version fetched by verify.sh, not committed
+bin/
+
+# OS
+.DS_Store
+Thumbs.db

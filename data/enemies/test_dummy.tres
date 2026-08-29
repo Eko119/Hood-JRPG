@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="EnemyDefinition" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://systems/definitions/enemy_definition.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"test_dummy"
+display_name = "Test Dummy"
+authored = true
+max_hp = 40
+max_mp = 0
+attack = 6
+defense = 4
+speed = 5
+xp_reward = 10
+money_reward = 5
+encounter_tier = 1
