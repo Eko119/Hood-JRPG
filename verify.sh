@@ -85,6 +85,21 @@ if [[ "${RAN:-0}" -gt 0 && "${RAN:-0}" == "${PASSED:-x}" ]]; then
   pass "all tests passed ($RAN/$RAN)"
 else fail "tests: ${PASSED:-?}/${RAN:-?} passed"; fi
 
+step "6. Cross-process determinism (M2 requirement 10)"
+# Unit tests prove reproducibility WITHIN one process, where pointer values and
+# allocation order happen to be stable — exactly the condition that hid the
+# DEC-020 StringName bug. This runs the same scenario in three FRESH processes.
+H1="$("$GODOT" --headless --path . --script res://tools/determinism_probe.gd 2>/dev/null | grep -o 'DETERMINISM_HASH=.*')"
+H2="$("$GODOT" --headless --path . --script res://tools/determinism_probe.gd 2>/dev/null | grep -o 'DETERMINISM_HASH=.*')"
+H3="$("$GODOT" --headless --path . --script res://tools/determinism_probe.gd 2>/dev/null | grep -o 'DETERMINISM_HASH=.*')"
+echo "     ${H1:-<no hash>}"
+if [[ -n "$H1" && "$H1" == "$H2" && "$H2" == "$H3" ]]; then
+  pass "identical state hash across 3 separate processes"
+else
+  echo "     run2: ${H2:-<none>}"; echo "     run3: ${H3:-<none>}"
+  fail "state hash differs across processes — determinism broken"
+fi
+
 step "RESULT"
 if [[ $FAILURES -eq 0 ]]; then
   printf '  \033[32mM0 machine-checkable gate: PASS\033[0m\n\n'; exit 0
