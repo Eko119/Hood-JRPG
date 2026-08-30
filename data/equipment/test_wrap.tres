@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="EquipmentDefinition" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://systems/definitions/equipment_definition.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"test_wrap"
+display_name = "Placeholder Wrap"
+description = "Fixture equipment."
+authored = true
+slot = &"body"
+stat_modifiers = {}
+price = 50
+sellable = true
+tier = 1

@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="EnemyDefinition" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://systems/definitions/enemy_definition.gd" id="1"]
+[ext_resource type="Resource" path="res://data/abilities/test_lob.tres" id="2"]
+
+[resource]
+script = ExtResource("1")
+id = &"broke_enemy"
+display_name = "Broke"
+max_hp = 0
+ability_resource_max = 1
+move_range_per_cycle_fx = 65536
+collision_radius_fx = 99999999
+abilities = [ExtResource("2")]
+xp_reward = -5
+encounter_tier = 0
+blocked_intent_horizon_cycles = 3

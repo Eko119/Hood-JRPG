@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="CharacterDefinition" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://systems/definitions/character_definition.gd" id="1"]
+[ext_resource type="Resource" path="res://data/abilities/test_strike.tres" id="2"]
+[ext_resource type="Resource" path="res://data/abilities/test_cover.tres" id="3"]
+
+[resource]
+script = ExtResource("1")
+id = &"test_alpha"
+display_name = "Placeholder A"
+authored = true
+max_hp = 60
+ability_resource_max = 262144
+move_range_per_cycle_fx = 196608
+collision_radius_fx = 32768
+hp_per_level = 5
+ability_resource_per_level_fx = 6554
+max_level = 20
+equipment_slots = [&"body", &"accessory"]
+starting_abilities = [ExtResource("2"), ExtResource("3")]

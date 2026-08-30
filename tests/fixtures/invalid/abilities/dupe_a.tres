@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="AbilityDefinition" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://systems/definitions/ability_definition.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"dupe_ability"
+display_name = "Dupe One"
+ability_resource_cost = 65536
+target_kind = 2
+range_fx = 0
+is_projectile = true
+flight_cycles = 2
+base_power_fx = 65536

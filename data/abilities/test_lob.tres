@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="AbilityDefinition" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://systems/definitions/ability_definition.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"test_lob"
+display_name = "Lob"
+description = "Placeholder projectile. Lands one cycle later, so it is aimed where a target will be."
+authored = true
+ability_resource_cost = 65536
+target_kind = 3
+range_fx = 655360
+area_radius_fx = 131072
+is_projectile = true
+flight_cycles = 1
+base_power_fx = 393216
+is_cooperative = false

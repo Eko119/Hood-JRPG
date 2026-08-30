@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="EncounterDefinition" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://systems/definitions/encounter_definition.gd" id="1"]
+[ext_resource type="Resource" path="res://data/enemies/test_dummy.tres" id="2"]
+
+[resource]
+script = ExtResource("1")
+id = &"test_arena"
+display_name = "Placeholder Arena"
+authored = true
+enemies = [ExtResource("2"), ExtResource("2")]
+spawn_positions = [PackedInt64Array(327680, 0), PackedInt64Array(-327680, 131072)]
+arena_half_extent_fx = PackedInt64Array(655360, 655360)

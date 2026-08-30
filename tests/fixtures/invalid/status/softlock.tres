@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="StatusEffectDefinition" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://systems/definitions/status_effect_definition.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"softlock"
+display_name = "Softlock"
+duration_cycles = -1
+prevents_action = true
+removed_by = []

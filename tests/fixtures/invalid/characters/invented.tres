@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="CharacterDefinition" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://systems/definitions/character_definition.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"marcus_the_protagonist"
+display_name = "Invented Person"
+max_hp = 50
+ability_resource_max = 65536
+move_range_per_cycle_fx = 65536
+collision_radius_fx = 32768
+hp_per_level = 0
+ability_resource_per_level_fx = 0
+max_level = 10
+equipment_slots = [&"body", &"body"]

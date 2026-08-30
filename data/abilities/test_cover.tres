@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="AbilityDefinition" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://systems/definitions/ability_definition.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"test_cover"
+display_name = "Cover"
+description = "Placeholder cooperative verb: one character shields the other movement."
+authored = true
+ability_resource_cost = 49152
+target_kind = 1
+range_fx = 196608
+area_radius_fx = 0
+is_projectile = false
+flight_cycles = 0
+base_power_fx = 65536
+is_cooperative = true

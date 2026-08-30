@@ -68,6 +68,14 @@ step "5. Test suite (GUT, headless)"
 TESTS="$("$GODOT" --headless --path . -s addons/gut/gut_cmdln.gd \
          -gdir=res://tests -ginclude_subdirs -gexit 2>&1)"
 echo "$TESTS" | grep -E 'Scripts|^Tests|Passing Tests|Asserts' | sed 's/^/     /'
+# GUT reports "All tests passed!" even when a whole test FILE failed to parse and
+# was silently skipped. Found the hard way: an 18-test file vanished from the run
+# while the suite still reported green. Any script-load failure now fails the gate.
+LOADFAIL="$(echo "$TESTS" | grep -cE 'Parse Error|Failed to load script|SCRIPT ERROR' || true)"
+if [[ "$LOADFAIL" -gt 0 ]]; then
+  echo "$TESTS" | grep -E 'Parse Error|Failed to load script' | head -5 | sed 's/^/     /'
+  fail "$LOADFAIL script load/parse error(s) — tests were silently skipped"
+fi
 # Robust against column-width changes as the suite grows. The original
 # fixed-width lookbehind silently returned empty once counts hit two digits,
 # reporting failure on a fully passing suite.

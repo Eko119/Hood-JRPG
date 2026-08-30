@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="StatusEffectDefinition" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://systems/definitions/status_effect_definition.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"test_slowed"
+display_name = "Slowed"
+authored = true
+duration_cycles = 2
+stat_modifiers = {}
+prevents_action = false
+stacks = false

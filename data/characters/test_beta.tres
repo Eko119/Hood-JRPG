@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="CharacterDefinition" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://systems/definitions/character_definition.gd" id="1"]
+[ext_resource type="Resource" path="res://data/abilities/test_lob.tres" id="2"]
+
+[resource]
+script = ExtResource("1")
+id = &"test_beta"
+display_name = "Placeholder B"
+authored = true
+max_hp = 45
+ability_resource_max = 327680
+move_range_per_cycle_fx = 163840
+collision_radius_fx = 29491
+hp_per_level = 3
+ability_resource_per_level_fx = 9830
+max_level = 20
+equipment_slots = [&"body"]
+starting_abilities = [ExtResource("2")]

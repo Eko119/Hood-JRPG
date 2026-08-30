@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="RelationshipDefinition" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://systems/definitions/relationship_definition.gd" id="1"]
+[ext_resource type="Script" path="res://systems/definitions/relationship_tier.gd" id="2"]
+[ext_resource type="Resource" path="res://data/abilities/test_cover.tres" id="3"]
+
+[sub_resource type="Resource" id="t0"]
+script = ExtResource("2")
+threshold = 0
+display_name = "Placeholder tier 0"
+unlocked_abilities = []
+passive_modifiers = {}
+
+[sub_resource type="Resource" id="t1"]
+script = ExtResource("2")
+threshold = 100
+display_name = "Placeholder tier 1"
+unlocked_abilities = [ExtResource("3")]
+passive_modifiers = {}
+
+[resource]
+script = ExtResource("1")
+id = &"test_bond"
+display_name = "Placeholder Bond"
+authored = true
+between = [&"test_alpha", &"test_beta"]
+tiers = [SubResource("t0"), SubResource("t1")]

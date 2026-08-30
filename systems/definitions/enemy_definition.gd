@@ -1,26 +1,34 @@
 extends Resource
 class_name EnemyDefinition
-## Walking-skeleton content type. One definition at M0 by design (CLAUDE.md
-## exit criterion 11) — the remaining types arrive at M1 with their validator
-## rules written first.
+## An enemy combatant. Extended at M1 for continuous space and abilities.
 ##
-## `id` is the stable key that saves and cross-references point at. It is never
-## reused after deletion, and renaming one is a migration rather than an edit.
-## `display_name` is player-facing and may change freely — which is exactly why
-## it is never used as a key.
+## WHAT AN ENEMY REPRESENTS in this world is unresolved creative design
+## (design-constitution.md §9) and is not encoded here.
+##
+## `id` is the stable key saves and cross-references point at. Never reused
+## after deletion; renaming is a migration, not an edit.
 
 @export var id: StringName = &""
 @export var display_name: String = ""
-@export var authored: bool = false  ## Hand-tuned; skipped by CSV numeric import (DEC-002)
+@export var authored: bool = false
 
-@export_group("Stats")
+@export_group("Core stats")
 @export var max_hp: int = 1
-@export var max_mp: int = 0
-@export var attack: int = 1
-@export var defense: int = 1
-@export var speed: int = 1
+@export var ability_resource_max: int = 0
+
+@export_group("Spatial (DEC-017, fixed-point)")
+@export var move_range_per_cycle_fx: int = 0
+@export var collision_radius_fx: int = 0
+
+@export_group("Abilities")
+@export var abilities: Array[Resource] = []
 
 @export_group("Rewards")
 @export var xp_reward: int = 0
 @export var money_reward: int = 0
 @export var encounter_tier: int = 1
+
+@export_group("BLOCKED — do not set")
+## How many cycles ahead this enemy's intent is telegraphed. Blocked on
+## DEC-015-Q2. -1 = not set, the only value validation accepts.
+@export var blocked_intent_horizon_cycles: int = -1

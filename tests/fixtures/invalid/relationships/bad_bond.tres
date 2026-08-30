@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="RelationshipDefinition" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://systems/definitions/relationship_definition.gd" id="1"]
+[ext_resource type="Script" path="res://systems/definitions/relationship_tier.gd" id="2"]
+
+[sub_resource type="Resource" id="t0"]
+script = ExtResource("2")
+threshold = 100
+passive_modifiers = {"hp": 10}
+
+[sub_resource type="Resource" id="t1"]
+script = ExtResource("2")
+threshold = 50
+passive_modifiers = {}
+
+[resource]
+script = ExtResource("1")
+id = &"the_real_bond"
+display_name = "Bad Bond"
+between = [&"a", &"b", &"c"]
+tiers = [SubResource("t0"), SubResource("t1")]

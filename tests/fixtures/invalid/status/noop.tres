@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="StatusEffectDefinition" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://systems/definitions/status_effect_definition.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"noop_status"
+display_name = "No-op"
+duration_cycles = 0

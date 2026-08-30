@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="AbilityDefinition" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://systems/definitions/ability_definition.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"test_strike"
+display_name = "Strike"
+description = "Placeholder melee verb."
+authored = true
+ability_resource_cost = 32768
+target_kind = 2
+range_fx = 98304
+area_radius_fx = 0
+is_projectile = false
+flight_cycles = 0
+base_power_fx = 655360
+is_cooperative = false

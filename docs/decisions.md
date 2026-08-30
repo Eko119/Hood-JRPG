@@ -225,6 +225,46 @@ Jobs/classes and large branching skill trees are excluded from initial scope. De
 
 ---
 
+## DEC-019 — Deterministic integers serialize as strings in JSON
+**Status:** LOCKED · 2026-08-29 · **Protects:** DEC-005, DEC-012, DEC-017
+
+**Decision.** Any integer whose exactness is load-bearing — RNG state, fixed-point spatial values, deterministic counters — is written to JSON as a **string** and parsed back with `int()`. Ordinary display numbers (gold, level) may use plain JSON numbers.
+
+**Reason — a measured bug, not a theoretical one.** `JSON.parse_string` returns every number as `TYPE_FLOAT`. Doubles carry 53 mantissa bits, so any int64 above 2^53 is silently rounded. Measured on Godot 4.7, 2026-08-29:
+
+```
+RNG state written:  -5973960184894437042
+after JSON:         -5973960184894437376     off by 334
+```
+
+DEC-005 makes JSON the save format; DEC-012 requires RNG state to survive it exactly. Those conflict for any value above 2^53. A corrupted RNG state means a reloaded battle diverges from the saved one — silently, with no error raised.
+
+**Note on prior coverage.** `test_state_survives_dictionary_round_trip` (added with DEC-012) passed through a `Dictionary`, not JSON, and therefore never exercised the failing path. The DEC-012 claim of save-round-trip coverage was overstated. `test_det_serialize.gd` now covers the real path.
+
+**Alternatives.** (A) Keep plain JSON, accept the loss — rejected; breaks replay. (B) Binary save format — rejected; loses inspectability and conflicts with DEC-005's security reasoning. (C) String encoding for exact integers. **Selected: C.**
+
+---
+
+## DEC-020 — Never order by StringName comparison
+**Status:** LOCKED · 2026-08-29 · **Protects:** DEC-004
+
+**Decision.** `StringName` values are never compared or sorted for ordering. Convert with `String()` first, or use `DetOrder.sorted_ids` / `compare_ids` / `sort_by_id`.
+
+**Reason — measured on Godot 4.7, 2026-08-29.** StringName comparison operators compare the **internal pointer**, not string content:
+
+```
+[&"zebra", &"alpha", &"mango", &"beta"].sort()
+  -> [&"beta", &"mango", &"alpha", &"zebra"]     not lexicographic
+StringName("m_" + "one") < StringName("m_" + "two")
+  -> false                                        lexically should be true
+```
+
+Pointer values depend on allocation order, which depends on load order, which is not stable across processes or machines. **DEC-004 requires ties to break on stable `id`, and every id in this project is a StringName.** Sorting them directly would produce a resolver that passes every test in one process and diverges on replay.
+
+**Why it hides.** `&"alpha" < &"zebra"` happens to return `true`, because literals are interned in source order. Small tests look correct. This was found by probing the API under the M1 contract's rule 8, not by reading code.
+
+---
+
 ## Proposed amendments
 
 ### AMD-001 — DEC-007's slice definition assumes menu-driven combat
