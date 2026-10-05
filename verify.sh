@@ -55,9 +55,11 @@ if [[ -n "$HITS" ]]; then
 else pass "no global RNG under systems/combat/"; fi
 
 step "4. Content validator"
+"$GODOT" --headless --import --path . >/dev/null 2>&1
 VAL="$("$GODOT" --headless --path . --script res://tools/validate_content.gd 2>&1)"
+VAL_EXIT=$?
 echo "$VAL" | grep -E '^\[validator\]|ERROR|WARN' | sed 's/^/     /'
-if echo "$VAL" | grep -q "0 error(s)"; then pass "content valid"
+if [[ $VAL_EXIT -eq 0 ]] && echo "$VAL" | grep -q '^\[validator\] 0 error(s),'; then pass "content valid"
 else fail "content validation errors"; fi
 
 step "5. Test suite (GUT, headless)"
