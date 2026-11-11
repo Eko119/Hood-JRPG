@@ -13,5 +13,8 @@ SceneManager="*res://autoloads/scene_manager.gd"
 AudioManager="*res://autoloads/audio_manager.gd"
 SaveSystem="*res://autoloads/save_system.gd"
 
+[debug]
+gdscript/warnings/untyped_declaration=2
+
 [rendering]
 renderer/rendering_method="gl_compatibility"
