@@ -6,12 +6,12 @@ func test_plain_json_actually_loses_large_ints() -> void:
 	# Documents the defect itself. If Godot ever fixes this, this test fails and
 	# tells us the workaround can be revisited — that is intentional.
 	var big: int = -5973960184894437042
-	var back = JSON.parse_string(JSON.stringify({"v": big}))["v"]
+	var back: Variant = JSON.parse_string(JSON.stringify({"v": big}))["v"]
 	assert_ne(int(back), big, "plain JSON is expected to be lossy above 2^53")
 	assert_eq(typeof(back), TYPE_FLOAT, "JSON numbers parse back as float")
 
 func test_string_encoding_survives_json_exactly() -> void:
-	for v in [-5973960184894437042, 9223372036854775806, -9223372036854775807, 0, 1, -1]:
+	for v: int in [-5973960184894437042, 9223372036854775806, -9223372036854775807, 0, 1, -1]:
 		var json := JSON.stringify({"v": DetSerialize.enc_int(v)})
 		var back := DetSerialize.dec_int(JSON.parse_string(json)["v"])
 		assert_eq(back, v, "int %d must survive JSON exactly" % v)

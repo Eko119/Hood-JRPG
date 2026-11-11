@@ -3,7 +3,7 @@ extends GutTest
 ## in the combat domain rests on this, so it gets tested harder than anything else.
 
 func test_int_round_trip_is_exact() -> void:
-	for i in [-1000, -1, 0, 1, 7, 100, 46000]:
+	for i: int in [-1000, -1, 0, 1, 7, 100, 46000]:
 		assert_eq(Fixed.to_float(Fixed.from_int(i)), float(i),
 			"integer %d must round-trip exactly" % i)
 
@@ -36,14 +36,14 @@ func test_operations_are_bit_identical_across_repeats() -> void:
 	assert_eq(results[1], results[2], "run 2 and 3 must be bit-identical")
 
 func test_sqrt_is_correct_within_one_unit() -> void:
-	for n in [1, 2, 4, 9, 16, 100, 144, 1000]:
+	for n: int in [1, 2, 4, 9, 16, 100, 144, 1000]:
 		var r := Fixed.sqrt_fx(Fixed.from_int(n))
 		var expected := sqrt(float(n))
 		assert_almost_eq(Fixed.to_float(r), expected, 0.001,
 			"sqrt(%d) should be ~%f" % [n, expected])
 
 func test_sqrt_of_perfect_squares_is_exact() -> void:
-	for n in [1, 4, 9, 16, 25, 100, 10000]:
+	for n: int in [1, 4, 9, 16, 25, 100, 10000]:
 		assert_eq(Fixed.sqrt_fx(Fixed.from_int(n * n)), Fixed.from_int(n),
 			"sqrt of perfect square %d must be exact" % (n * n))
 

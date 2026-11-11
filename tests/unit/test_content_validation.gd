@@ -12,7 +12,7 @@ func _errors_from(root: String) -> Array:
 	return v.validate(root)["errors"]
 
 func _has(errs: Array, needle: String) -> bool:
-	for e in errs:
+	for e: String in errs:
 		if String(e).findn(needle) != -1:
 			return true
 	return false

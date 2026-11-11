@@ -21,7 +21,7 @@ func _state(ents: Array) -> BattleState:
 	return s
 
 func _noop() -> Callable:
-	return func(_snap, _tick): return []
+	return func(_snap: BattleState, _tick: int) -> Array: return []
 
 # --- (1)(2) exactly 10 ticks, correct ordering, termination ------------------
 
@@ -35,7 +35,7 @@ func test_ticks_are_indexed_one_through_ten_in_order() -> void:
 
 func test_no_tick_eleven() -> void:
 	var seen: Array[int] = []
-	var ev := func(snap, tick):
+	var ev := func(snap: BattleState, tick: int) -> Array:
 		seen.append(tick)
 		return []
 	WindowResolver.execute_window(_state([_entity("a", 0, 10)]), ev)
@@ -56,7 +56,7 @@ func test_mutual_lethal_damage_defeats_both() -> void:
 	# Q1: both lethal outcomes are valid; neither cancels the other.
 	var a := _entity("alpha", 0, 5)
 	var b := _entity("bravo", 1, 5)
-	var ev := func(snap, tick):
+	var ev := func(snap: BattleState, tick: int) -> Array:
 		if tick != 1: return []
 		return [CombatOutcome.damage(&"alpha", &"bravo", 5),
 				CombatOutcome.damage(&"bravo", &"alpha", 5)]
@@ -70,7 +70,7 @@ func test_lethal_outcome_is_not_cancelled_by_dying_first() -> void:
 	# already-valid outcome discarded because it "died first".
 	var a := _entity("zzz_last", 0, 3)
 	var b := _entity("aaa_first", 1, 3)
-	var ev := func(snap, tick):
+	var ev := func(snap: BattleState, tick: int) -> Array:
 		if tick != 1: return []
 		return [CombatOutcome.damage(&"zzz_last", &"aaa_first", 99),
 				CombatOutcome.damage(&"aaa_first", &"zzz_last", 99)]
@@ -80,7 +80,7 @@ func test_lethal_outcome_is_not_cancelled_by_dying_first() -> void:
 
 func test_damage_accumulates_from_multiple_sources_in_one_tick() -> void:
 	var t := _entity("target", 1, 10)
-	var ev := func(snap, tick):
+	var ev := func(snap: BattleState, tick: int) -> Array:
 		if tick != 1: return []
 		return [CombatOutcome.damage(&"target", &"s1", 4),
 				CombatOutcome.damage(&"target", &"s2", 4),
@@ -91,10 +91,10 @@ func test_damage_accumulates_from_multiple_sources_in_one_tick() -> void:
 # --- (4) iteration order must not change the authoritative result ------------
 
 func test_reversed_outcome_order_produces_identical_state() -> void:
-	var mk := func(reversed: bool):
+	var mk := func(reversed: bool) -> String:
 		var ents := [_entity("alpha", 0, 12), _entity("bravo", 1, 12), _entity("charlie", 1, 12)]
 		if reversed: ents.reverse()
-		var ev := func(snap, tick):
+		var ev := func(snap: BattleState, tick: int) -> Array:
 			if tick != 3: return []
 			var o := [CombatOutcome.damage(&"alpha", &"bravo", 7),
 					  CombatOutcome.damage(&"bravo", &"alpha", 7),
@@ -110,10 +110,10 @@ func test_reversed_outcome_order_produces_identical_state() -> void:
 		"Q1: internal iteration order must not change the authoritative result")
 
 func test_reversed_entity_array_produces_identical_state() -> void:
-	var run := func(rev: bool):
+	var run := func(rev: bool) -> String:
 		var ents := [_entity("a", 0, 6), _entity("b", 1, 6)]
 		if rev: ents.reverse()
-		var ev := func(snap, tick):
+		var ev := func(snap: BattleState, tick: int) -> Array:
 			if tick != 1: return []
 			return [CombatOutcome.damage(&"a", &"b", 6), CombatOutcome.damage(&"b", &"a", 6)]
 		var s := BattleState.new()
@@ -148,7 +148,7 @@ func test_no_intent_exposed_beyond_horizon() -> void:
 	# The store genuinely holds later windows; they must remain unreachable.
 	assert_true(h.has_stored_window(6), "fixture must actually store a later window")
 	assert_true(h.has_stored_window(7))
-	for i in (h.visible_enemy_intents(s) as Array):
+	for i: CombatIntent in (h.visible_enemy_intents(s) as Array):
 		assert_ne(String(i.ability_id), "test_lob", "window+2 intent must not leak")
 	assert_false(IntentHorizon.is_visible(4, 6), "window+2 is beyond the horizon")
 	assert_false(IntentHorizon.is_visible(4, 7))
@@ -166,9 +166,9 @@ func test_defeated_enemies_expose_no_intent() -> void:
 # --- (7) deterministic fixed-point spatial execution -------------------------
 
 func test_spatial_movement_is_deterministic_and_fixed_point() -> void:
-	var run := func():
+	var run := func() -> PackedInt64Array:
 		var e := _entity("mover", 0, 10, 0, 0)
-		var ev := func(snap, tick):
+		var ev := func(snap: BattleState, tick: int) -> Array:
 			var cur: CombatEntity = snap.get_entity(&"mover")
 			var dest := FixedVec.from_ints(37, 91)
 			var step: int = Fixed.div(cur.move_range_per_cycle_fx, Fixed.from_int(BattleState.TICKS_PER_WINDOW))
@@ -181,7 +181,7 @@ func test_spatial_movement_is_deterministic_and_fixed_point() -> void:
 
 func test_conflicting_position_writes_are_reported_not_ordered() -> void:
 	# Q1: order must never decide. Two destinations in one tick is a conflict.
-	var ev := func(snap, tick):
+	var ev := func(snap: BattleState, tick: int) -> Array:
 		if tick != 1: return []
 		return [CombatOutcome.set_position(&"m", FixedVec.from_ints(1, 1)),
 				CombatOutcome.set_position(&"m", FixedVec.from_ints(9, 9))]
@@ -191,8 +191,8 @@ func test_conflicting_position_writes_are_reported_not_ordered() -> void:
 # --- (8) identical inputs produce identical results --------------------------
 
 func test_identical_inputs_produce_identical_state_hash() -> void:
-	var run := func():
-		var ev := func(snap, tick):
+	var run := func() -> String:
+		var ev := func(snap: BattleState, tick: int) -> Array:
 			return [CombatOutcome.damage(&"b", &"a", tick),
 					CombatOutcome.regen(&"a", tick * 100)]
 		return WindowResolver.execute_window(
@@ -200,11 +200,11 @@ func test_identical_inputs_produce_identical_state_hash() -> void:
 	assert_eq(run.call(), run.call(), "same inputs must give the same state hash")
 
 func test_event_timeline_is_tick_stamped_and_ordered() -> void:
-	var ev := func(snap, tick): return [CombatOutcome.damage(&"b", &"a", 1)]
+	var ev := func(snap: BattleState, tick: int) -> Array: return [CombatOutcome.damage(&"b", &"a", 1)]
 	var r: Dictionary = WindowResolver.execute_window(
 		_state([_entity("a", 0, 50), _entity("b", 1, 50)]), ev)
 	var ticks: Array = []
-	for e in (r["events"] as Array):
+	for e: Dictionary in (r["events"] as Array):
 		if e["type"] == "damage": ticks.append(e["tick"])
 	assert_eq(ticks, [1,2,3,4,5,6,7,8,9,10], "DEC-014: tick-stamped event timeline")
 
@@ -245,7 +245,7 @@ func test_no_float_leaks_into_serialized_state() -> void:
 	s.rng_state = -5973960184894437042
 	var parsed: Dictionary = JSON.parse_string(JSON.stringify(s.to_dict()))
 	assert_eq(typeof(parsed["rng_state"]), TYPE_STRING, "rng_state must serialize as string")
-	var pos = parsed["entities"][0]["position"]
+	var pos: Array = parsed["entities"][0]["position"]
 	assert_eq(typeof(pos[0]), TYPE_STRING, "positions must serialize as strings")
 	assert_eq(BattleState.from_dict(parsed).rng_state, s.rng_state)
 
@@ -253,7 +253,7 @@ func test_snapshot_is_not_aliased_by_live_state() -> void:
 	# If evaluation could see mutations from earlier in the same tick, Q1's
 	# guarantee would be gone. Prove the snapshot is a genuine copy.
 	var observed: Array[int] = []
-	var ev := func(snap, tick):
+	var ev := func(snap: BattleState, tick: int) -> Array:
 		observed.append(snap.get_entity(&"a").hp)
 		return [CombatOutcome.damage(&"a", &"a", 1)]
 	WindowResolver.execute_window(_state([_entity("a", 0, 100)]), ev)
@@ -262,12 +262,12 @@ func test_snapshot_is_not_aliased_by_live_state() -> void:
 
 func test_status_reapplication_is_reported_not_silently_stacked() -> void:
 	# OPEN-6: no locked contract determines non-stacking re-application.
-	var ev := func(snap, tick):
+	var ev := func(snap: BattleState, tick: int) -> Array:
 		if tick > 2: return []
 		return [CombatOutcome.apply_status(&"a", &"test_slowed", 2)]
 	var r: Dictionary = WindowResolver.execute_window(_state([_entity("a", 0, 10)]), ev)
 	var found := false
-	for c in (r["conflicts"] as Array):
+	for c: String in (r["conflicts"] as Array):
 		if String(c).findn("OPEN-6") != -1: found = true
 	assert_true(found, "re-application must be reported as undetermined")
 	assert_eq((r["state"].get_entity(&"a").statuses as Array).size(), 1,
