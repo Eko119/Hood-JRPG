@@ -16,7 +16,7 @@ func _init() -> void:
 	s.arena_half_extent_fx = FixedVec.from_ints(100, 100)
 	# Ids chosen so lexical and insertion order DISAGREE — a pointer-ordered
 	# sort would produce a different hash here than a lexical one.
-	for spec in [["zulu", 1, 40, 12, -5], ["alpha", 0, 35, -8, 3],
+	for spec: Array in [["zulu", 1, 40, 12, -5], ["alpha", 0, 35, -8, 3],
 				 ["mike", 1, 50, 4, 9], ["bravo", 0, 45, -2, -11]]:
 		var e := CombatEntity.new()
 		e.id = StringName(spec[0])
@@ -37,11 +37,11 @@ func _init() -> void:
 		var r := snap.make_rng()
 		# Deterministic per-tick behaviour exercising damage, movement, resource
 		# and RNG, all against the tick-start snapshot.
-		for e in snap.entities_in_canonical_order():
+		for e: CombatEntity in snap.entities_in_canonical_order():
 			if e.defeated: continue
 			var roll: int = r.randi_range(1, 6)
 			var foes: Array = []
-			for other in snap.entities_in_canonical_order():
+			for other: CombatEntity in snap.entities_in_canonical_order():
 				if other.team != e.team and not other.defeated:
 					foes.append(other)
 			if foes.size() > 0:

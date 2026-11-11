@@ -39,13 +39,13 @@ func validate(root: String) -> Dictionary:
 			by_type[d].append({"path": path, "res": r})
 
 	_check_types()
-	for e in by_type["abilities"]:      _ability(e.path, e.res)
-	for e in by_type["characters"]:     _character(e.path, e.res)
-	for e in by_type["enemies"]:        _enemy(e.path, e.res)
-	for e in by_type["equipment"]:      _equipment(e.path, e.res)
-	for e in by_type["status"]:         _status(e.path, e.res)
-	for e in by_type["relationships"]:  _relationship(e.path, e.res)
-	for e in by_type["encounters"]:     _encounter(e.path, e.res)
+	for e: Dictionary in by_type["abilities"]:      _ability(e.path, e.res)
+	for e: Dictionary in by_type["characters"]:     _character(e.path, e.res)
+	for e: Dictionary in by_type["enemies"]:        _enemy(e.path, e.res)
+	for e: Dictionary in by_type["equipment"]:      _equipment(e.path, e.res)
+	for e: Dictionary in by_type["status"]:         _status(e.path, e.res)
+	for e: Dictionary in by_type["relationships"]:  _relationship(e.path, e.res)
+	for e: Dictionary in by_type["encounters"]:     _encounter(e.path, e.res)
 	_cross_definition()
 	_reachability()
 	warnings.sort(); errors.sort()   # deterministic ordering (DEC-004)
@@ -67,7 +67,7 @@ func _check_types() -> void:
 		"encounters": "EncounterDefinition",
 	}
 	for d in DIRS:
-		for e in by_type[d]:
+		for e: Dictionary in by_type[d]:
 			var ok := false
 			match d:
 				"abilities": ok = e.res is AbilityDefinition
@@ -264,12 +264,12 @@ func _cross_definition() -> void:
 	# numeric progression. If every character has flat growth while relationships
 	# hand out modifiers, that principle is violated.
 	var any_char_grows := false
-	for e in by_type["characters"]:
+	for e: Dictionary in by_type["characters"]:
 		var c: CharacterDefinition = e.res
 		if c.hp_per_level > 0 or c.ability_resource_per_level_fx > 0:
 			any_char_grows = true
 	var rel_gives_numbers := false
-	for e in by_type["relationships"]:
+	for e: Dictionary in by_type["relationships"]:
 		for t in (e.res as RelationshipDefinition).tiers:
 			if t != null and not t.passive_modifiers.is_empty():
 				rel_gives_numbers = true
@@ -280,8 +280,8 @@ func _cross_definition() -> void:
 	# The two characters, their bond, and the world are unresolved creative design
 	# (design-constitution.md §9, DEC-008). Any non-placeholder content of those
 	# types would mean someone invented them.
-	for d in ["characters", "relationships"]:
-		for e in by_type[d]:
+	for d: String in ["characters", "relationships"]:
+		for e: Dictionary in by_type[d]:
 			var s := String(e.res.id)
 			var is_placeholder := false
 			for pre in PLACEHOLDER_PREFIXES:
@@ -291,13 +291,13 @@ func _cross_definition() -> void:
 
 # --- reachability -------------------------------------------------------------
 func _reachability() -> void:
-	for e in by_type["abilities"]:
+	for e: Dictionary in by_type["abilities"]:
 		var a: AbilityDefinition = e.res
 		if not referenced_abilities.has(String(a.id)):
 			warnings.append("%s: ability '%s' is not reachable — no character, enemy, equipment, or relationship tier grants it" % [e.path, a.id])
 		if a.is_cooperative:
 			var via_rel := false
-			for re in by_type["relationships"]:
+			for re: Dictionary in by_type["relationships"]:
 				for t in (re.res as RelationshipDefinition).tiers:
 					if t == null: continue
 					for ab in t.unlocked_abilities:

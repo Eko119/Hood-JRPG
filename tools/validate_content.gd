@@ -7,13 +7,13 @@ func _init() -> void:
 	var r: Dictionary = v.validate("res://data")
 	print("[validator] checked %d resource(s)" % r["checked"])
 	print("[validator] %d BLOCKED rule group(s) — cannot be written until decided:" % r["blocked"].size())
-	for id in r["blocked"]:
+	for id: String in r["blocked"]:
 		var e: Dictionary = PendingDecisions.REGISTRY[id]
 		print("  BLOCKED %s  %s" % [id, e["question"]])
-		for b in e["blocks"]:
+		for b: String in e["blocks"]:
 			print("            - %s" % b)
-	for w in r["warnings"]: print("  WARN  %s" % w)
-	for e in r["errors"]:   print("  ERROR %s" % e)
+	for w: String in r["warnings"]: print("  WARN  %s" % w)
+	for e: String in r["errors"]:   print("  ERROR %s" % e)
 	print("[validator] %d error(s), %d warning(s), %d blocked group(s)" % [
 		r["errors"].size(), r["warnings"].size(), r["blocked"].size()])
 	DirAccess.make_dir_recursive_absolute("res://reports")
