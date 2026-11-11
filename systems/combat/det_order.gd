@@ -27,7 +27,7 @@ class_name DetOrder
 ## Lexicographic sort of ids. Always use this for deterministic iteration.
 static func sorted_ids(ids: Array) -> Array:
 	var as_strings: Array[String] = []
-	for i in ids:
+	for i: Variant in ids:
 		as_strings.append(String(i))
 	as_strings.sort()
 	return as_strings
@@ -44,5 +44,5 @@ static func compare_ids(a: StringName, b: StringName) -> int:
 ## Sorts objects carrying an `id` property into a stable, content-based order.
 static func sort_by_id(items: Array) -> Array:
 	var out := items.duplicate()
-	out.sort_custom(func(x, y): return String(x.id) < String(y.id))
+	out.sort_custom(func(x: RefCounted, y: RefCounted) -> bool: return String(x.id) < String(y.id))
 	return out

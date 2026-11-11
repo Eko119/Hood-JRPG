@@ -52,12 +52,12 @@ static func is_json_safe(v: int) -> bool:
 ## need deterministic iteration must sort BEFORE calling (DEC-004).
 static func enc_int_array(a: Array) -> Array:
 	var out: Array = []
-	for v in a:
+	for v: Variant in a:
 		out.append(str(v))
 	return out
 
 static func dec_int_array(a: Variant) -> Array:
 	var out: Array = []
-	for v in (a as Array):
+	for v: Variant in (a as Array):
 		out.append(dec_int(v))
 	return out

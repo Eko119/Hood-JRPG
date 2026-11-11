@@ -18,7 +18,7 @@ var _by_window: Dictionary = {}   # int window_index -> Array[CombatIntent]
 func commit(window_index: int, intents: Array) -> void:
 	var sorted: Array = intents.duplicate()
 	# DEC-020: canonical order by actor id, never StringName comparison.
-	sorted.sort_custom(func(a, b): return String(a.actor_id) < String(b.actor_id))
+	sorted.sort_custom(func(a: CombatIntent, b: CombatIntent) -> bool: return String(a.actor_id) < String(b.actor_id))
 	_by_window[window_index] = sorted
 
 ## Q2: true only for the single upcoming window.
@@ -32,7 +32,7 @@ func visible_enemy_intents(state: BattleState) -> Array:
 	if not _by_window.has(target_window):
 		return []
 	var out: Array = []
-	for i in _by_window[target_window]:
+	for i: CombatIntent in _by_window[target_window]:
 		var e: CombatEntity = state.get_entity(i.actor_id)
 		if e != null and e.team == CombatEntity.Team.ENEMY and not e.defeated:
 			out.append(i)

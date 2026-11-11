@@ -46,14 +46,14 @@ func clone() -> CombatEntity:
 	c.move_range_per_cycle_fx = move_range_per_cycle_fx
 	c.defeated = defeated
 	c.statuses = []
-	for s in statuses:
+	for s: Dictionary in statuses:
 		c.statuses.append({"id": s["id"], "remaining_cycles": s["remaining_cycles"]})
 	return c
 
 ## DEC-019: position and any exactness-critical integer serialize as strings.
 func to_dict() -> Dictionary:
 	var st: Array = []
-	for s in statuses:
+	for s: Dictionary in statuses:
 		st.append({"id": String(s["id"]), "remaining_cycles": s["remaining_cycles"]})
 	return {
 		"id": String(id),
@@ -82,6 +82,6 @@ static func from_dict(d: Dictionary) -> CombatEntity:
 	e.move_range_per_cycle_fx = DetSerialize.dec_int(d["move_range_per_cycle_fx"])
 	e.defeated = bool(d["defeated"])
 	e.statuses = []
-	for s in (d["statuses"] as Array):
+	for s: Dictionary in (d["statuses"] as Array):
 		e.statuses.append({"id": StringName(s["id"]), "remaining_cycles": int(s["remaining_cycles"])})
 	return e

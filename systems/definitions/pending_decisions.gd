@@ -80,7 +80,7 @@ static func is_blocked(id: StringName) -> bool:
 
 static func blocked_ids() -> Array:
 	var out: Array = []
-	for k in REGISTRY.keys():
+	for k: StringName in REGISTRY.keys():
 		if REGISTRY[k]["status"] == Status.BLOCKED:
 			out.append(k)
 	# DEC-020: StringName comparison is pointer-based, not lexicographic.

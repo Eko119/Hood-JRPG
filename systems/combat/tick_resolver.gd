@@ -34,7 +34,7 @@ static func apply_tick(state: BattleState, outcomes: Array, tick: int) -> Dictio
 	var conflicts: Array = []
 
 	# --- Accumulate. Order-independent by construction (integer addition). ---
-	for o in outcomes:
+	for o: CombatOutcome in outcomes:
 		var t := String(o.target_id)
 		match o.kind:
 			CombatOutcome.Kind.DAMAGE:
@@ -56,27 +56,27 @@ static func apply_tick(state: BattleState, outcomes: Array, tick: int) -> Dictio
 
 	# --- Apply, iterating in canonical order for REPORTING only. The values
 	# applied were fixed during accumulation, so this order cannot change them.
-	for key in DetOrder.sorted_ids(damage_by.keys()):
+	for key: String in DetOrder.sorted_ids(damage_by.keys()):
 		var e: CombatEntity = state.get_entity(StringName(key))
 		if e == null: continue
 		var dmg: int = damage_by[key]
 		e.hp -= dmg
 		events.append({"tick": tick, "type": "damage", "target": key, "amount": dmg, "hp_after": e.hp})
 
-	for key in DetOrder.sorted_ids(resource_delta.keys()):
+	for key: String in DetOrder.sorted_ids(resource_delta.keys()):
 		var e: CombatEntity = state.get_entity(StringName(key))
 		if e == null: continue
 		e.ability_resource = Fixed.clamp_fx(e.ability_resource + int(resource_delta[key]), 0, e.ability_resource_max)
 		events.append({"tick": tick, "type": "resource", "target": key, "value_after": e.ability_resource})
 
-	for key in DetOrder.sorted_ids(position_writes.keys()):
+	for key: String in DetOrder.sorted_ids(position_writes.keys()):
 		var writes: Array = position_writes[key]
 		# Two different destinations for one entity in one tick is not resolvable
 		# without letting order decide. Q1 forbids that, so it is an error.
 		var distinct: Array = []
-		for w in writes:
+		for w: PackedInt64Array in writes:
 			var dup := false
-			for d in distinct:
+			for d: PackedInt64Array in distinct:
 				if FixedVec.equals(w, d): dup = true
 			if not dup: distinct.append(w)
 		if distinct.size() > 1:
@@ -88,17 +88,17 @@ static func apply_tick(state: BattleState, outcomes: Array, tick: int) -> Dictio
 		events.append({"tick": tick, "type": "move", "target": key,
 			"to": [str(e.position[0]), str(e.position[1])]})
 
-	for key in DetOrder.sorted_ids(status_writes.keys()):
+	for key: String in DetOrder.sorted_ids(status_writes.keys()):
 		var e: CombatEntity = state.get_entity(StringName(key))
 		if e == null: continue
-		for w in status_writes[key]:
+		for w: Dictionary in status_writes[key]:
 			# StatusEffectDefinition.stacks exists, but NO locked contract says
 			# what happens when a non-stacking status is applied to an entity
 			# that already carries it — refresh, ignore, or take the max
 			# (OPEN-6). Appending unconditionally would silently choose "stack
 			# always", so re-application is reported instead of resolved.
 			var already := false
-			for existing in e.statuses:
+			for existing: Dictionary in e.statuses:
 				if existing["id"] == w["id"]: already = true
 			if already:
 				conflicts.append("tick %d: status '%s' re-applied to '%s' — stacking semantics undetermined (OPEN-6)" % [tick, String(w["id"]), key])
@@ -106,13 +106,13 @@ static func apply_tick(state: BattleState, outcomes: Array, tick: int) -> Dictio
 			e.statuses.append({"id": w["id"], "remaining_cycles": w["cycles"]})
 			events.append({"tick": tick, "type": "status", "target": key, "status": String(w["id"])})
 		# Keep the list canonically ordered so serialization is stable (DEC-004).
-		e.statuses.sort_custom(func(x, y): return String(x["id"]) < String(y["id"]))
+		e.statuses.sort_custom(func(x: Dictionary, y: Dictionary) -> bool: return String(x["id"]) < String(y["id"]))
 
 	# --- Defeat evaluation: ONCE, after all accumulation. This is what makes
 	# simultaneous mutual destruction work (Q1). Both entities reach hp <= 0
 	# from outcomes computed against the same tick-start snapshot, and both are
 	# marked DEFEATED. Neither cancels the other.
-	for e in state.entities_in_canonical_order():
+	for e: CombatEntity in state.entities_in_canonical_order():
 		if not e.defeated and e.hp <= 0:
 			e.defeated = true
 			e.hp = 0

@@ -33,7 +33,7 @@ var arena_half_extent_fx: PackedInt64Array = PackedInt64Array([0, 0])
 func clone() -> BattleState:
 	var s := BattleState.new()
 	s.entities = []
-	for e in entities:
+	for e: CombatEntity in entities:
 		s.entities.append(e.clone())
 	s.rng_state = rng_state
 	s.window_index = window_index
@@ -49,14 +49,14 @@ func entities_in_canonical_order() -> Array:
 	return DetOrder.sort_by_id(entities)
 
 func get_entity(entity_id: StringName) -> CombatEntity:
-	for e in entities:
+	for e: CombatEntity in entities:
 		if e.id == entity_id:
 			return e
 	return null
 
 func living() -> Array:
 	var out: Array = []
-	for e in entities_in_canonical_order():
+	for e: CombatEntity in entities_in_canonical_order():
 		if not e.defeated:
 			out.append(e)
 	return out
@@ -68,7 +68,7 @@ func state_hash() -> String:
 
 func to_dict() -> Dictionary:
 	var ents: Array = []
-	for e in entities_in_canonical_order():
+	for e: CombatEntity in entities_in_canonical_order():
 		ents.append(e.to_dict())
 	return {
 		"entities": ents,
@@ -82,7 +82,7 @@ func to_dict() -> Dictionary:
 static func from_dict(d: Dictionary) -> BattleState:
 	var s := BattleState.new()
 	s.entities = []
-	for e in (d["entities"] as Array):
+	for e: Dictionary in (d["entities"] as Array):
 		s.entities.append(CombatEntity.from_dict(e))
 	s.rng_state = DetSerialize.dec_int(d["rng_state"])
 	s.window_index = int(d["window_index"])
